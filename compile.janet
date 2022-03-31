@@ -68,13 +68,18 @@
     [:output _] []
     [_ line] [line]))
 
+# if there's no output, this will return nil instead of
+# the empty string, for some reason
+(defn read-pipe [file]
+  (or (:read file :all) ""))
+
 (defn easy-spawn [args input]
   (def process (os/spawn args :pe {:in :pipe :out :pipe :err :pipe}))
   (:write (process :in) input)
   (:close (process :in))
   (def exit (:wait process))
-  { :out (:read (process :out) :all)
-    :err (:read (process :err) :all)
+  { :out (read-pipe (process :out))
+    :err (read-pipe (process :err))
     :exit exit })
 
 (def iterator-proto @{
@@ -116,8 +121,8 @@
 (defn last-index? [i list]
   (= i (dec (length list))))
 
-(defn main [_ file &]
-  (def source (slurp file))
+(defn main [&]
+  (def source (:read stdin :all))
 
   (def tagged-lines
     (->> source
