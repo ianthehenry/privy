@@ -65,3 +65,9 @@ Becomes:
 Then it executes *that* `ivy` program, splits the output on null bytes, and interleaves it with the original input.
 
 `inliven` will fail to associate output to the correct input lines if your program outputs single null bytes like this. There is currently no way to choose a different output terminator.
+
+# Tests
+
+There are [cram tests](test.t) that you can run.
+
+Unfortunately trailing spaces are significant to cram, so be careful your editor doesn't trim them.

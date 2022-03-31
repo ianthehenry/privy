@@ -1,4 +1,4 @@
 { nixpkgs ? import <nixpkgs> {} }:
 with nixpkgs; mkShellNoCC {
-  buildInputs = [janet];
+  nativeBuildInputs = [janet python39Packages.cram];
 }
