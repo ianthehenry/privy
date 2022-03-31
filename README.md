@@ -68,6 +68,8 @@ Then it executes *that* `ivy` program, splits the output on null bytes, and inte
 
 # Tests
 
-There are [cram tests](test.t) that you can run.
+There are [cram tests](https://bitheap.org/cram/) that you can run or [peruse](test.t):
+
+    $ cram test.t
 
 Unfortunately trailing spaces are significant to cram, so be careful your editor doesn't trim them.
