@@ -1,4 +1,5 @@
 (def output-prefix "#=")
+(def error-prefix "#!")
 
 (def tag-peg (peg/compile ~{
   :alphunder (+ (range "az" "AZ") "_")
@@ -8,7 +9,7 @@
     (* (constant :blank-line) :s* -1)
     (* (constant :assignment) (<- :identifier) :s* "=" (not "="))
     (* (constant :output) ,output-prefix)
-    (* (constant :error) "#!")
+    (* (constant :error) ,error-prefix)
     (* (constant :comment) "#")
     (* (constant :long-op) :op :s* -1)
     (* (constant :short-op) :op)
@@ -100,9 +101,9 @@
   (if-let [output (:get outputs)]
     (do
       (each line (string/split "\n" output)
-        (print "#= " line))
+        (print output-prefix " " line))
       (:advance outputs))
-    (print "#! unreachable")))
+    (print error-prefix " unreachable")))
 
 (defn chunk-output [out]
   (def chunks (string/split "\n\0\n" out))
@@ -149,7 +150,7 @@
     (when-let [[line-number error-message] (:get errors)]
       # we add one because lines are one-indexed
       (when (= line-number (inc i))
-        (print "#! " error-message)
+        (print error-prefix " " error-message)
         (:advance errors)))
 
     (when (and (nil? (:get outputs)) (expect-output? (first line)))
