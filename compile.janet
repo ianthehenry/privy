@@ -30,7 +30,7 @@
   tagged-lines)
 
 (defmacro each-reverse [identifier list & body]
-  (let [$i (gensym) $list (gensym)]
+  (with-syms [$i $list]
     ~(let [,$list ,list]
       (var ,$i (dec (length ,$list)))
       (while (>= ,$i 0)
