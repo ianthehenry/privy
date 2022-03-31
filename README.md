@@ -8,7 +8,7 @@ Given a source file, `inliven` will produce a modified source file containing in
 1 2 3 + 4 5 6
 ```
 
-Will produce this output:
+Becomes:
 
 ```ivy
 1 2 3 + 4 5 6
@@ -29,7 +29,7 @@ y = x + x
 x + y
 ```
 
-Will produce:
+Becomes:
 
 ```ivy
 x = 1 2 3
@@ -46,7 +46,7 @@ At the moment all ivy programs are valid inliven programs, and vice-versa. This 
 
 # How does it work
 
-`inliven` compiles the input program into another program that contains `"\x00"` after ever statement that will output something. So:
+`inliven` compiles the input program into another program that contains `"\x00"` after every statement that will output something. So:
 
 ```ivy
 2 * 1 2 3
@@ -64,4 +64,4 @@ Becomes:
 
 Then it executes *that* `ivy` program, splits the output on null bytes, and interleaves it with the original input.
 
-`inliven` will fail to associate output to the correct input lines if your program outputs single null bytes like this. There is currently no way to choose a different output seperator.
+`inliven` will fail to associate output to the correct input lines if your program outputs single null bytes like this. There is currently no way to choose a different output terminator.
