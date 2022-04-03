@@ -126,3 +126,25 @@ Indentation is currently ignored in output:
   > EOF
       1 2 3
   #= 1 2 3
+
+Error lines are matched with the correct source line even
+when the reported line differs from the original source.
+
+  $ run <<EOF
+  > 1
+  > 2
+  > x
+  > 3
+  > 4
+  > EOF
+  1
+  #= 1
+  2
+  #= 2
+  #! undefined variable "x"
+  x
+  #! unreachable
+  3
+  #! unreachable
+  4
+  #! unreachable

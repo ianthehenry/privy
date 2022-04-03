@@ -63,10 +63,14 @@
   (reverse! result)
   result)
 
-(defn parse-errors [err]
+(defn map-first [f list]
+  (map (fn [[x y]] [(f x) y]) list))
+
+(defn parse-errors [err sourcemap]
   (->> err
     (terminated-by "\n")
-    (map |(peg/match error-peg $))))
+    (map |(peg/match error-peg $))
+    (map-first |(in sourcemap (dec $)))))
 
 (defn compiled-lines [tagged-line]
   (match tagged-line
@@ -121,6 +125,18 @@
 (defn last-index? [i list]
   (= i (dec (length list))))
 
+# returns a tuple of the mapcat result and an
+# array associating output indices to the input
+# indices that produced them
+(defn sourcemapcat [f list]
+  (def result @[])
+  (def index-mappings @[])
+  (eachp (i line) list
+    (def mapped (f line))
+    (each _ mapped (array/push index-mappings i))
+    (array/concat result mapped))
+  [result index-mappings])
+
 (defn main [&]
   (def source (:read stdin :all))
 
@@ -130,14 +146,15 @@
       (tag-lines)
       (rewrite-verbose-assignments)))
 
-  (def compiled-output (string/join (mapcat compiled-lines tagged-lines) "\n"))
+  (def [compiled-lines sourcemap] (sourcemapcat compiled-lines tagged-lines))
+  (def compiled-output (string/join compiled-lines "\n"))
 
   (def { :exit exit :out out :err err }
     (easy-spawn ["ivy" "/dev/stdin"] compiled-output))
 
   # this assumes that errors are reported from top to bottom, which feels safe.
   # in practice it seems that one error is ever reported.
-  (def errors (iterator (parse-errors err)))
+  (def errors (iterator (parse-errors err sourcemap)))
 
   # we could assert right here that this is less than or equal to the total number we expect.
   # if less, we can also assert a nonzero exit. it should never be greater or something has
@@ -146,9 +163,8 @@
 
   (var can-print-output false)
   (eachp [i line] tagged-lines
-    (when-let [[line-number error-message] (:get errors)]
-      # we add one because lines are one-indexed
-      (when (= line-number (inc i))
+    (when-let [[line-index error-message] (:get errors)]
+      (when (= line-index i)
         (print error-prefix " " error-message)
         (:advance errors)))
 
