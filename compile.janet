@@ -80,8 +80,8 @@
     [:output _] []
     [_ line] [line]))
 
-# if there's no output, this will return nil instead of
-# the empty string, for some reason
+# if there's no output, :read will return nil instead
+# of the empty string, for some reason
 (defn read-pipe [file]
   (or (:read file :all) ""))
 
@@ -153,7 +153,7 @@
     (easy-spawn ["ivy" "/dev/stdin"] compiled-output))
 
   # this assumes that errors are reported from top to bottom, which feels safe.
-  # in practice it seems that one error is ever reported.
+  # in practice i've never observed multiple errors.
   (def errors (iterator (parse-errors err sourcemap)))
 
   # we could assert right here that this is less than or equal to the total number we expect.
