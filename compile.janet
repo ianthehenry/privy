@@ -1,6 +1,14 @@
 (def output-prefix "#=")
 (def error-prefix "#!")
 
+(defn terminated-by [terminator str]
+  (def components (string/split terminator str))
+  (if (empty? components)
+    components
+    (do
+      (assert (empty? (last components)) "unterminated string")
+      (tuple/slice components 0 -2))))
+
 (def tag-peg (peg/compile ~{
   :alphunder (+ (range "az" "AZ") "_")
   :identifier (* :alphunder (any (+ :alphunder :d)))
@@ -57,8 +65,7 @@
 
 (defn parse-errors [err]
   (->> err
-    (string/trimr)
-    (string/split "\n")
+    (terminated-by "\n")
     (map |(peg/match error-peg $))))
 
 (defn compiled-lines [tagged-line]
@@ -105,14 +112,6 @@
       (:advance outputs))
     (print error-prefix " unreachable")))
 
-(defn chunk-output [out]
-  (def chunks (string/split "\n\0\n" out))
-  (if (empty? chunks)
-    chunks
-    # "\n\0\n" is a terminator, not a seperator, so we
-    # remove the last (empty) chunk
-    (slice chunks 0 -2)))
-
 (defn expect-output? [tag]
   (match tag
     :statement true
@@ -143,7 +142,7 @@
   # we could assert right here that this is less than or equal to the total number we expect.
   # if less, we can also assert a nonzero exit. it should never be greater or something has
   # gone horribly wrong. but...
-  (def outputs (iterator (chunk-output out)))
+  (def outputs (iterator (terminated-by "\n\0\n" out)))
 
   (var can-print-output false)
   (eachp [i line] tagged-lines
