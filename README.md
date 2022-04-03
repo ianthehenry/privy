@@ -96,3 +96,11 @@ There are [cram tests](https://bitheap.org/cram/) that you can run or [peruse](t
     $ cram test.t
 
 Unfortunately trailing spaces are significant to cram, so be careful your editor doesn't trim them.
+
+# Hacking
+
+`privy` requires Janet 1.16.1, because this is the latest version of Janet packaged for Nix with a working `jpm`. You can enter a `nix-shell` with all of the correct dependencies by running:
+
+```
+nix-shell -I "nixpkgs=https://api.github.com/repos/NixOS/nixpkgs/tarball/$(cat shell.nix.lock)"
+```
