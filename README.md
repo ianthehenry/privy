@@ -1,8 +1,8 @@
-# inliven
+# privy
 
-`inliven` is a preprocessor/postprocessor for the array language [ivy](https://github.com/robpike/ivy). The name is a corruption of "inline ivy."
+`privy` is a preprocessor/postprocessor for the array language [ivy](https://github.com/robpike/ivy).
 
-Given a source file, `inliven` will produce a modified source file containing inline output from the expressions. For example, this input:
+Given a source file, `privy` will produce a modified source file containing inline output from the expressions. For example, this input:
 
 ```ivy
 1 2 3 + 4 5 6
@@ -40,13 +40,13 @@ x + y
 #= 3 6 9
 ```
 
-`inliven` currently searches for `ivy` on your `PATH`. There is no way to customize that.
+`privy` currently searches for `ivy` on your `PATH`. There is no way to customize that.
 
-At the moment all ivy programs are valid inliven programs, and vice-versa. This may change in the future as I add the ability to easily import values and function definitions from other files.
+At the moment all ivy programs are valid privy programs, and vice-versa. This may change in the future as I add the ability to easily import values and function definitions from other files.
 
 # How does it work
 
-`inliven` compiles the input program into another program that contains `"\x00"` after every statement that will output something. So:
+`privy` compiles the input program into another program that contains `"\x00"` after every statement that will output something. So:
 
 ```ivy
 2 * 1 2 3
@@ -64,7 +64,7 @@ Becomes:
 
 Then it executes *that* `ivy` program, splits the output on null bytes, and interleaves it with the original input.
 
-`inliven` will fail to associate output to the correct input lines if your program outputs single null bytes like this. There is currently no way to choose a different output terminator.
+`privy` will fail to associate output to the correct input lines if your program outputs single null bytes like this. There is currently no way to choose a different output terminator.
 
 # Tests
 

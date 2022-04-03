@@ -1,6 +1,6 @@
   $ PATH=$HOME/go/bin:$PATH
   $ run() { 
-  >   janet "$TESTDIR/compile.janet" 
+  >   janet "$TESTDIR/main.janet" 
   > }
 
 Basic stuff works:
