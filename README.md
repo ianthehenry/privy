@@ -5,66 +5,89 @@
 Given a source file, `privy` will produce a modified source file containing inline output from the expressions. For example, this input:
 
 ```ivy
-1 2 3 + 4 5 6
-```
+input = 199 200 208 210 200 207 240 269 260 263
 
-Becomes:
-
-```ivy
-1 2 3 + 4 5 6
-#= 5 7 9
-```
-
-Which is not a very interesting example.
-
-Output lines are prefixed with `#=`. Error lines are prefixed with `#!`.
-
-You can see the value of an assigned variable by adding `#=` after any assignment:
-
-```ivy
-x = 1 2 3
-y = x + x
+butlast = -1 drop input
 #=
 
-x + y
+butfirst = 1 drop input
+#=
+
++/ 1 == sgn butfirst - butlast
 ```
 
 Becomes:
 
 ```ivy
-x = 1 2 3
-y = x + x
-#= 2 4 6
+input = 199 200 208 210 200 207 240 269 260 263
 
-x + y
-#= 3 6 9
+butfirst = 1 drop input
+#= 200 208 210 200 207 240 269 260 263
+
+butlast = -1 drop input
+#= 199 200 208 210 200 207 240 269 260
+
++/ 1 == sgn butfirst - butlast
+#= 7
 ```
 
-`privy` currently searches for `ivy` on your `PATH`. There is no way to customize that.
+Output lines start with `#=`. Error lines start with `#!`, and are reported inline with the errors:
+
+```
+input = 199 200 208 210 200 207 240 269 260 263
+
+butfirst = 1 drop input
+#= 200 208 210 200 207 240 269 260 263
+
+butlast = -1 drop input
+#= 199 200 208 210 200 207 240 269 260
+
+#! undefined variable "buttfirst"
++/ 1 == sgn buttfirst - butlast
+#! unreachable
+#= 7
+```
+
+`privy` currently searches for `ivy` on your `PATH`, with no way to customize that.
 
 At the moment all ivy programs are valid privy programs, and vice-versa. This may change in the future as I add the ability to easily import values and function definitions from other files.
 
 # How does it work
 
-`privy` compiles the input program into another program that contains `"\x00"` after every statement that will output something. So:
+`privy` "compiles" its input:
 
 ```ivy
-2 * 1 2 3
-3 * 1 2 3
+input = 199 200 208 210 200 207 240 269 260 263
+
+butlast = -1 drop input
+#=
+
+butfirst = 1 drop input
+#=
+
++/ 1 == sgn butfirst - butlast
 ```
 
-Becomes:
+Into a corresponding ivy program:
 
-```ivy
-2 * 1 2 3
+```
+input = 199 200 208 210 200 207 240 269 260 263
+
+butlast = -1 drop input
+butlast
 "\x00"
-3 * 1 2 3
+
+butfirst = 1 drop input
+butfirst
+"\x00"
+
++/ 1 == sgn butfirst - butlast
 "\x00"
 ```
 
-Then it executes *that* `ivy` program, splits the output on null bytes, and interleaves it with the original input.
+Then it executes *that* program, splits the output on null bytes, and interleaves it with the original input.
 
-`privy` will fail to associate output to the correct input lines if your program outputs single null bytes like this. There is currently no way to choose a different output terminator.
+You will notice the fragility: `privy` will fail to associate output to the correct input lines if your program outputs single null bytes like this. There is currently no way to choose a different output terminator.
 
 # Tests
 
