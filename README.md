@@ -52,6 +52,14 @@ butlast = -1 drop input
 
 At the moment all ivy programs are valid privy programs, and vice-versa. This may change in the future as I add the ability to easily import values and function definitions from other files.
 
+# Usage
+
+With no arguments, `privy` will read from stdin and print to stdout. With a positional argument, `privy` will read that file and print to a file suffixed with `.out`. In other words, these are equivalent:
+
+    $ privy file.ivy
+
+    $ privy <file.ivy >file.ivy.out
+
 # How does it work
 
 `privy` "compiles" its input:
@@ -88,6 +96,8 @@ butfirst
 Then it executes *that* program, splits the output on null bytes, and interleaves it with the original input.
 
 You will notice the fragility: `privy` will fail to associate output to the correct input lines if your program outputs single null bytes like this. There is currently no way to choose a different output terminator.
+
+If run with `--dump-intermediate`, `privy` will print this intermediate result to stderr before passing it to `ivy`.
 
 # Tests
 

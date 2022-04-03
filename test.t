@@ -1,6 +1,6 @@
   $ PATH=$HOME/go/bin:$PATH
   $ run() { 
-  >   janet "$TESTDIR/main.janet" 
+  >   janet "$TESTDIR/main.janet" "$@"
   > }
 
 Basic stuff works:
@@ -148,3 +148,30 @@ when the reported line differs from the original source.
   #! unreachable
   4
   #! unreachable
+
+When given a positional argument, it writes a .out file.
+
+  $ cat >example.ivy <<EOF
+  > x = 1 2 3
+  > y = 4 5 6
+  > #=
+  > x + y
+  > EOF
+  $ run example.ivy
+  $ cat example.ivy.out
+  x = 1 2 3
+  y = 4 5 6
+  #= 4 5 6
+  x + y
+  #= 5 7 9
+
+--dump-intermediate prints the intermediate compilation result to stderr.
+
+  $ run example.ivy --dump-intermediate
+  x = 1 2 3
+  y = 4 5 6
+  y
+  "\x00"
+  x + y
+  "\x00"
+  

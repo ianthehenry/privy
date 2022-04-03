@@ -137,8 +137,40 @@
     (array/concat result mapped))
   [result index-mappings])
 
-(defn main [&]
-  (def source (:read stdin :all))
+(defn filter-partition [f? list]
+  (let [trues @[] falses @[]]
+    (each x list
+      (array/push (if (f? x) trues falses) x))
+    [trues falses]))
+
+(defn parse-args [args]
+  (def [flags positionals] (filter-partition |(string/has-prefix? "--" $) args))
+  # We can't use match because it matches *prefixes*, not the entire list.
+  # So the pattern [] matches every list. It's the worst.
+  (def [infile outfile]
+    (case (length positionals)
+      0 [stdin stdout]
+      1 (let [filename (positionals 0)] 
+          [(file/open filename :r) 
+           (file/open (string filename ".out") :w)])
+      (error "only one positional argument allowed")))
+  (var dump-intermediate? false)
+  (each flag flags
+    (case flag
+      "--dump-intermediate" (set dump-intermediate? true)
+      (error (string "unrecognized flag " flag))))
+  { :in infile 
+    :out outfile 
+    :dump-intermediate? dump-intermediate? })
+
+(defn main [_ & args]
+  (def {:in infile 
+        :out outfile 
+        :dump-intermediate? dump-intermediate?} 
+       (parse-args args))
+
+  (def source (file/read infile :all))
+  (setdyn :out outfile)
 
   (def tagged-lines
     (->> source
@@ -148,6 +180,8 @@
 
   (def [compiled-lines sourcemap] (sourcemapcat compiled-lines tagged-lines))
   (def compiled-output (string/join compiled-lines "\n"))
+  (when dump-intermediate?
+    (eprintf "%s" compiled-output))
 
   (def { :exit exit :out out :err err }
     (easy-spawn ["ivy" "/dev/stdin"] compiled-output))
