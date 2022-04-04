@@ -74,8 +74,8 @@
 
 (defn compiled-lines [tagged-line]
   (match tagged-line
-    [:verbose-assignment identifier line] [line identifier `"\x00"`]
-    [:statement line] [line `"\x00"`]
+    [:verbose-assignment identifier line] ["_privy = _" line identifier `"\x00"` "_ = _privy"]
+    [:statement line] [(string "_privy = " line) "_privy" `"\x00"` "_ = _privy"]
     [:comment _] []
     [:output _] []
     [_ line] [line]))
@@ -179,6 +179,10 @@
       (rewrite-verbose-assignments)))
 
   (def [compiled-lines sourcemap] (sourcemapcat compiled-lines tagged-lines))
+  # we have to initialize _ in case we have a verbose assignment before the
+  # first statement, which would otherwise result in an undefined variable error
+  (def compiled-lines ["_ = 0 rho 0" ;compiled-lines])
+  (def sourcemap [-1 ;sourcemap])
   (def compiled-output (string/join compiled-lines "\n"))
   (when dump-intermediate?
     (eprintf "%s" compiled-output))

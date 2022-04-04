@@ -168,10 +168,48 @@ When given a positional argument, it writes a .out file.
 --dump-intermediate prints the intermediate compilation result to stderr.
 
   $ run example.ivy --dump-intermediate
+  _ = 0 rho 0
   x = 1 2 3
+  _privy = _
   y = 4 5 6
   y
   "\x00"
-  x + y
+  _ = _privy
+  _privy = x + y
+  _privy
   "\x00"
+  _ = _privy
+  
+Example of --dump-intermediate from the readme:
+
+  $ run --dump-intermediate >/dev/null <<EOF
+  > input = 199 200 208 210 200 207 240 269 260 263
+  > 
+  > butlast = -1 drop input
+  > #=
+  > 
+  > butfirst = 1 drop input
+  > #=
+  > 
+  > +/ 1 == sgn butfirst - butlast
+  > EOF
+  _ = 0 rho 0
+  input = 199 200 208 210 200 207 240 269 260 263
+  
+  _privy = _
+  butlast = -1 drop input
+  butlast
+  "\x00"
+  _ = _privy
+  
+  _privy = _
+  butfirst = 1 drop input
+  butfirst
+  "\x00"
+  _ = _privy
+  
+  _privy = +/ 1 == sgn butfirst - butlast
+  _privy
+  "\x00"
+  _ = _privy
   

@@ -97,7 +97,33 @@ Then it executes *that* program, splits the output on null bytes, and interleave
 
 You will notice the fragility: `privy` will fail to associate output to the correct input lines if your program outputs single null bytes like this. There is currently no way to choose a different output terminator.
 
-If run with `--dump-intermediate`, `privy` will print this intermediate result to stderr before passing it to `ivy`.
+Also, I lied to you. It produces something more complicated than this, in order to preserve the behavior of the `_` automatic variable. The *actual* output from the above program is:
+
+```
+_ = 0 rho 0
+input = 199 200 208 210 200 207 240 269 260 263
+
+_privy = _
+butlast = -1 drop input
+butlast
+"\x00"
+_ = _privy
+
+_privy = _
+butfirst = 1 drop input
+butfirst
+"\x00"
+_ = _privy
+
+_privy = +/ 1 == sgn butfirst - butlast
+_privy
+"\x00"
+_ = _privy
+```
+
+Note that `_` will always begin initialized to something. This means certain invalid `ivy` programs are valid `privy` programs, but like that's just an implementation detail leaking out. Don't rely on that.
+
+If you pass the flag `--dump-intermediate`, `privy` will print this intermediate result to stderr before passing it to `ivy`.
 
 # Tests
 
