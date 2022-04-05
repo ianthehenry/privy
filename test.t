@@ -175,8 +175,8 @@ When given a positional argument, it writes a .out file.
   y
   "\x00"
   _ = _privy
-  _privy = x + y
-  _privy
+  x + y
+  _privy = _
   "\x00"
   _ = _privy
   
@@ -208,8 +208,17 @@ Example of --dump-intermediate from the readme:
   "\x00"
   _ = _privy
   
-  _privy = +/ 1 == sgn butfirst - butlast
-  _privy
+  +/ 1 == sgn butfirst - butlast
+  _privy = _
   "\x00"
   _ = _privy
   
+Special commands are passed through correctly:
+
+  $ run <<EOF
+  > )ibase 2
+  > 101
+  > EOF
+  )ibase 2
+  101
+  #= 5

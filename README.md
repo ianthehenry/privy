@@ -115,8 +115,8 @@ butfirst
 "\x00"
 _ = _privy
 
-_privy = +/ 1 == sgn butfirst - butlast
-_privy
++/ 1 == sgn butfirst - butlast
+_privy = _
 "\x00"
 _ = _privy
 ```

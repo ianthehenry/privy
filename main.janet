@@ -75,7 +75,7 @@
 (defn compiled-lines [tagged-line]
   (match tagged-line
     [:verbose-assignment identifier line] ["_privy = _" line identifier `"\x00"` "_ = _privy"]
-    [:statement line] [(string "_privy = " line) "_privy" `"\x00"` "_ = _privy"]
+    [:statement line] [line "_privy = _" `"\x00"` "_ = _privy"]
     [:comment _] []
     [:output _] []
     [_ line] [line]))
@@ -111,8 +111,8 @@
   (print line)
   (if-let [output (:get outputs)]
     (do
-      (each line (string/split "\n" output)
-        (print output-prefix " " line))
+      (each line (terminated-by "\n" output)
+        (printf "%s %s" output-prefix line))
       (:advance outputs))
     (print error-prefix " unreachable")))
 
@@ -197,7 +197,7 @@
   # we could assert right here that this is less than or equal to the total number we expect.
   # if less, we can also assert a nonzero exit. it should never be greater or something has
   # gone horribly wrong. but...
-  (def outputs (iterator (terminated-by "\n\0\n" out)))
+  (def outputs (iterator (terminated-by "\0\n" out)))
 
   (var can-print-output false)
   (eachp [i line] tagged-lines
