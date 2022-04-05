@@ -119,8 +119,8 @@
 (defn expect-output? [tag]
   (match tag
     :statement true
-   :verbose-assignment true
-   false))
+    :verbose-assignment true
+    false))
 
 (defn last-index? [i list]
   (= i (dec (length list))))
