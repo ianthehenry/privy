@@ -89,10 +89,10 @@
   (def process (os/spawn args :pe {:in :pipe :out :pipe :err :pipe}))
   (:write (process :in) input)
   (:close (process :in))
+  (def out (read-pipe (process :out)))
+  (def err (read-pipe (process :err)))
   (def exit (:wait process))
-  { :out (read-pipe (process :out))
-    :err (read-pipe (process :err))
-    :exit exit })
+  { :out out :err err :exit exit })
 
 (def iterator-proto @{
   :get (fn [self]
